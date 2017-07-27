@@ -49,7 +49,6 @@ module.exports = webpackConfig;
 var path = require('path');
 
 var webpackConfig = {
-    entry: './src/main.js',
     entry: {
         app: './src/main.js',
         vendor: ['jquery'],            // 写上你想打包到一个文件的第三方库
@@ -138,7 +137,7 @@ module.exports = webpackConfig;
 执行`npm start`，打包后的文件就会加上hash。
 
 如果修改入口文件，再次打包。发现vendor文件hash值也变了。但是第三方库显然并没有修改。
-原因在于使用**CommonsChunkPlugin**分离出第三方库的同时，也将一些webpack默认生成的一些代码带了进来。
+原因在于使用**CommonsChunkPlugin**分离出第三方库的同时，也将webpack默认生成的一些代码带了进来。
 在你更改文件内容时，这些生成的代码也会改变。这就导致的vendor文件也在变化。解决的办法就是将webpack默认
 生成的代码再单独打包出来。
 
@@ -150,7 +149,7 @@ plugins: [
 ]
 ```
 
-这样就将webpack默认生成的代码打包到manifest文件内了。再次修改入口文件后打包，vendor的hash值不变。
+这样就将webpack默认生成的代码打包到manifest文件内了。再次修改入口文件后打包，vendor的hash值不再变化了。
 
 
 
@@ -190,12 +189,14 @@ module.exports = webpackConfig;
 
 ### 自动替换index.html文件中引用的文件路径
 
+每次打包后手动添加文件到index.html比较傻,可以使用**html-webpack-plugin**来自动完成
 执行`npm install html-webpack-plugin --save-dev`.
+
 修改webpack.config.js文件
 ```javascript
 var path = require('path');
 var CleanWebpackPlugin = require('clean-webpack-plugin');
-+ var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 var webpackConfig = {
     entry: {
@@ -224,4 +225,4 @@ module.exports = webpackConfig;
 ```
 
 执行`npm start`后,dist目录下会重新生成一个index.html文件,并且已经添加了文件引用.
-试着更改**publicPath**再次打包,看看更该后的文件引用路径有什么变化.
+试着更改**publicPath**,然后再次打包,看看更该后的文件引用路径有什么变化.
