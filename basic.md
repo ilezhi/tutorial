@@ -14,6 +14,7 @@ webpack_demo
  |- /node_modules
  |- /src
  |  |- main.js
+ |- index.html
  |- package.json
  |- webpack.config.js
 
@@ -37,6 +38,7 @@ module.exports = webpackConfig;
 ```
 
 执行`npm start`, 打包后的文件就在`dist/bundle.js`
+在index.html文件中引入bundle.js.
 
 
 ### 将第三方库打包到单独文件code splitting
@@ -47,6 +49,7 @@ module.exports = webpackConfig;
 var path = require('path');
 
 var webpackConfig = {
+    entry: './src/main.js',
     entry: {
         app: './src/main.js',
         vendor: ['jquery'],            // 写上你想打包到一个文件的第三方库
@@ -65,6 +68,7 @@ module.exports = webpackConfig;
 ```
 
 执行`npm start`, 第三方库都被打包到了vendor.bundle.js文件内。
+在index.html文件中添加vendor.bundle.js文件
 
 
 
@@ -171,7 +175,7 @@ var webpackConfig = {
     },
     plugins: [
         new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor'
+            names: ['vendor', 'manifest']
         }),
         new CleanWebpackPlugin(['dist'])
     ]
@@ -185,3 +189,39 @@ module.exports = webpackConfig;
 
 
 ### 自动替换index.html文件中引用的文件路径
+
+执行`npm install html-webpack-plugin --save-dev`.
+修改webpack.config.js文件
+```javascript
+var path = require('path');
+var CleanWebpackPlugin = require('clean-webpack-plugin');
++ var HtmlWebpackPlugin = require('html-webpack-plugin');
+
+var webpackConfig = {
+    entry: {
+        app: './src/main.js',
+        vendor: ['jquery']
+    },
+    output: {
+        filename: '[name].[chunkhash:5].js',
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: './'                            // 替换后文件引用的开始路径
+    },
+    plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+            names: ['vendor', 'manifest']
+        }),
+        new CleanWebpackPlugin(['dist']),
+        new HtmlWebpackPlugin({
+            title: 'htmlwebpackplugin',
+            filename: 'index.html',             // 生成的文件名
+            template: 'index.html'              // 解析模板,不填会创建新的index.html文件
+        })
+    ]
+};
+
+module.exports = webpackConfig;
+```
+
+执行`npm start`后,dist目录下会重新生成一个index.html文件,并且已经添加了文件引用.
+试着更改**publicPath**再次打包,看看更该后的文件引用路径有什么变化.
