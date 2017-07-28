@@ -1,17 +1,16 @@
-### 使用webpack
+## 使用webpack
 
 1. 在项目根目录下执行`npm install webpack --save-dev`
 2. 然后创建webpack.config.js，在此文件写配置信息。
 3. 在package.json文件的scrpts属性添加`"start": "webpack"`
 4. 打开终端，在根目录下执行`npm start`，就会根据你的配置信息进行打包并输出。
 
-### 入口文件
+## 入口文件
 
 至少需要一个入口文件，webpack才知道从哪开始，顺着入口文件解析依赖关系并打包到一个文件中。
 
 **目录结构**
 ```
-
 webpack_demo
  |- /node_modules
  |- /src
@@ -19,8 +18,8 @@ webpack_demo
  |- index.html
  |- package.json
  |- webpack.config.js
-
  ```
+
 **index.html**
  ```html
 <div id="box"></div>
@@ -46,19 +45,16 @@ var webpackConfig = {
 };
 
 module.exports = webpackConfig;
-
 ```
 
-执行`npm start`, 项目多了一个dist目录，打包的文件便在此目录下。
-在index.html文件中添加`<script src="./dist/bundle.js"></script>`后打开，可以看到页面效果
+执行`npm start`, 项目多了一个dist目录，打包的文件便在此目录下。在index.html文件中添加`<script src="./dist/bundle.js"></script>`后打开，可以看到页面效果
 
 
-### 多入口
-多个入口就会打包成多个文件
+## 多入口
+每个入口文件对应一个打包文件。
 
 **目录结构**
 ```
-
 webpack_demo
  |- /node_modules
  |- /src
@@ -67,7 +63,6 @@ webpack_demo
  |- index.html
  |- package.json
  |- webpack.config.js
-
  ```
 
 **app.js**
@@ -93,15 +88,15 @@ var webpackConfig = {
 };
 
 module.exports = webpackConfig;
-
 ```
+
 看到output的**filename**的变化了么，既然打包成了多个文件，就不能都叫bundle.js了。
 name会自动被entry中的属性名替换。除了name还有其它输出格式，之后我们还会讲到。可以去[这里](https://webpack.js.org/configuration/output/#output-filename)提前了解。
 
 将打包好的文件正确引入到index.html看看效果吧。
 
 
-### 分离出公共代码code splitting
+## 分离出公共代码code splitting
 
 如果我们的两个入口文件都引入了第三方类库或我们写的公共模块呢？
 
@@ -139,9 +134,7 @@ module.exports = webpackConfig;
 再看看另外两个文件，是不是瞬间清爽了很多。
 
 
-
-
-### webpack-dev-server和HMR
+## webpack-dev-server和HMR
 每次修改文件都需要再次打包后，并修改index.html中文件的引用路径，然后手动刷新浏览器后才能看到结果，这样复杂的过程不是我们想要的。
 我们需要
 1. 启动一个web服务，模拟真实web服务环境。(不在直接打开index.html)
