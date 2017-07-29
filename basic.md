@@ -203,7 +203,7 @@ module.exports = webpackConfig;
 
 
 
-### 引入css,image,font等其它静态资源
+## 引入css,image,font等其它静态资源
 在webpack中，可以像引入js文件一样直接引入其它类型文件。我们要做的就是安装对应的loader，并且在配置文件中告知wbpack哪些类型的文件需要经过loader预处理下。
 
 **目录结构**
