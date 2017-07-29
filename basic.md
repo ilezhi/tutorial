@@ -228,8 +228,8 @@ webpack_demo
 
 安装loader
 ```bash
-npm install css-loader style-loader --save-dev  #处理css
-npm install file-loader --save-dev 处理image和字体
+npm install css-loader style-loader --save-dev
+npm install file-loader --save-dev
 ```
 
 **site.css**
