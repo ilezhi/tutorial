@@ -203,145 +203,166 @@ module.exports = webpackConfig;
 
 
 
-<!--### webpack给打包后的文件加hash值
+### 引入css,image,font等其它静态资源
+在webpack中，可以像引入js文件一样直接引入其它类型文件。我们要做的就是安装对应的loader，并且在配置文件中告知wbpack哪些类型的文件需要经过loader预处理下。
 
-```javascript
-var path = require('path');
-
-var webpackConfig = {
-    entry: {
-        app: './src/main.js',
-        vendor: ['jquery']
-    },
-    output: {
-        filename: '[name].[chunkhash:5].js',
-        path: path.resolve(__dirname, 'dist')
-    },
-    plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            name: 'vendor'
-        })
-    ]
-};
-
-module.exports = webpackConfig;
-
+**目录结构**
 ```
-
-执行`npm start`，打包后的文件就会加上hash。
-
-如果修改入口文件，再次打包。发现vendor文件hash值也变了。但是第三方库显然并没有修改。
-原因在于使用**CommonsChunkPlugin**分离出第三方库的同时，也将webpack默认生成的一些代码带了进来。
-在你更改文件内容时，这些生成的代码也会改变。这就导致的vendor文件也在变化。解决的办法就是将webpack默认
-生成的代码再单独打包出来。
-
-```javascript
-plugins: [
-    new webpack.optimize.CommonsChunkPlugin({
-        names: ['vendor', 'manifest']
-    })
-]
-```
-
-这样就将webpack默认生成的代码打包到manifest文件内了。再次修改入口文件后打包，vendor的hash值不再变化了。
-
-
-
-### 每次构建前清除dist目录
-
-如果给文件加上hash值后，每次修改文件后打包，dist目录下的文件就会越来越多。此时用**clean-webpack-plugin**可以删除指定的目录或文件
-安装`npm install clean-webpack-plugin --save-dev`
-
-修改webpack.config.js
-```javascript
-var path = require('path');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
-
-var webpackConfig = {
-    entry: {
-        app: './src/main.js',
-        vendor: ['jquery']
-    },
-    output: {
-        filename: '[name].[chunkhash:5].js',
-        path: path.resolve(__dirname, 'dist')
-    },
-    plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            names: ['vendor', 'manifest']
-        }),
-        new CleanWebpackPlugin(['dist'])
-    ]
-};
-
-module.exports = webpackConfig;
-
-```
-
-每次执行`npm start`后，都会先删除dist目录。
-
-
-### 自动替换index.html文件中引用的文件路径
-
-每次打包后手动添加文件到index.html比较傻,可以使用**html-webpack-plugin**来自动完成
-执行`npm install html-webpack-plugin --save-dev`.
-
-修改webpack.config.js文件
-```javascript
-var path = require('path');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-
-var webpackConfig = {
-    entry: {
-        app: './src/main.js',
-        vendor: ['jquery']
-    },
-    output: {
-        filename: '[name].[chunkhash:5].js',
-        path: path.resolve(__dirname, 'dist'),
-        publicPath: './'                            // 替换后文件引用的开始路径
-    },
-    plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-            names: ['vendor', 'manifest']
-        }),
-        new CleanWebpackPlugin(['dist']),
-        new HtmlWebpackPlugin({
-            title: 'htmlwebpackplugin',
-            filename: 'index.html',             // 生成的文件名
-            template: 'index.html'              // 解析模板,不填会创建新的index.html文件
-        })
-    ]
-};
-
-module.exports = webpackConfig;
-```
-
-执行`npm start`后,dist目录下会重新生成一个index.html文件,并且已经添加了文件引用.
-试着更改**publicPath**,然后再次打包,看看更该后的文件引用路径有什么变化.
-
-
-### 加载css，image，fonts
-
-现在可以在你的js文件中直接引入css文件、image、fonts等其它静态资源，只需安装所对应的loader和添加一点点额外的配置信息。
-
-构建如下目录和文件
-```javascript
 webpack_demo
  |- /node_modules
  |- /src
  |  |- /assets
- |  |  |- /fonts
- |  |  |- /imgs
  |  |  |- /css
  |  |  |  |- site.css
- |  |- /components
- |  |  |- 
+ |  |  |- /fonts
+ |  |  |  |- MaterialIcons-Regular.woff
+ |  |  |  |- MaterialIcons-Regular.woff2
+ |  |  |- /images
+ |  |  |  |- circle.png
  |  |- main.js
+ |  |- app.js
  |- index.html
  |- package.json
  |- webpack.config.js
+ ```
 
-```-->
+安装loader
+```bash
+npm install css-loader style-loader --save-dev  #处理css
+npm install file-loader --save-dev 处理image和字体
+```
+
+**site.css**
+```css
+@font-face {
+    font-family: 'Material Icons';
+    src: url('../fonts/MaterialIcons-Regular.woff2'),
+         url('../fonts/MaterialIcons-Regular.woff');
+}
+body {
+    margin: 0;
+    background: #ccc;
+}
+
+p {
+    color: #0087bd;
+}
+
+i {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-size: 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+}
+```
+
+**main.js**
+```javascript
+import $ from 'jquery';
+import './assets/css/site.css';
+import icon from './assets/images/circle.png';
+
+var box = document.getElementById('box');
+var h = document.createElement('h4');
+h.innerText = '这是main入口文件';
+box.appendChild(h);
+
+var img = new Image();
+img.src = icon;
+box.appendChild(img);
+
+var i = document.createElement('i');
+i.innerText = 'autorenew';
+box.appendChild(i);
+```
+
+**webpack.config.js**
+```javascript
+var path = require('path');
+var webpack = require('webpack');
+
+var webpackConfig = {
+    entry: {
+        main: './src/main.js',
+        app: './src/app.js'
+    },
+    output: {
+        filename: '[name].bundle.js',
+        path: path.resolve(__dirname, 'dist')
+    },
+    devServer: {
+        port: 8888,                     // 设置端口
+        publicPath: '/',                // 启动web服务后打包文件的目录，index.html中引用文件路径
+        hot: true                       // 启动热替换
+    },
+    module: {                           // 添加module配置项
+        rules: [
+            {
+                test: /\.css$/,         // 匹配文件正则
+                use: [
+                    'style-loader',         // 将css添加到生成的style标签并添加到页面head标签内
+                    'css-loader'
+                ]
+            },
+            {
+                test: /\.(png|svg|jpg|gif)$/,
+                use: 'file-loader'
+            },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/,
+                use: 'file-loader'
+            }
+        ]
+    },
+    plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common'                          // 给打包出来的公共代码文件起个名字
+        }),
+        new webpack.HotModuleReplacementPlugin()        // 启动热替换
+    ]
+};
+
+module.exports = webpackConfig;
+```
+执行`npm start`,图片已经加载到页面，样式也有。按下`F12`后打开控制台，点击`Elements`选项卡，样式都写到了`<head>`里的`<style>`元素内。
+执行`npm run build`可以看到之前加载的字体,图片都打包到了`dist`目录下，你会发现没有样式文件。因为样式文件是通过js写入到页面的`<style>`
+标签内的。
+
+想知道都有哪些loder，来这里看看。[传送门](https://webpack.js.org/loaders/);
+
+
+## index.html自动引入打包后的文件
+如果打包的文件变多，或者每次修改后打包的文件名都会变，手动引入文件路径到index.html显然让人无法接受。
+执行`npm install html-webpack-plugin --save-dev`
+
+在webpack.config.js顶部引入插件
+`var HtmlWebpackPlugin = require('html-webpack-plugin');`
+在**plugins**添加如下配置
+```javascript
+new HtmlWebpackPlugin({
+    title: 'webpack demo',
+    filename: 'index.html',             // 生成的文件名
+    template: 'index.html',             // 以哪个文件为模板，可不填
+})
+```
+
+将`index.html`中引入的js文件删除，执行`npm start`页面像之前一样正常显示。打开控制台切换到`Elements`选项，js文件都在底部被正确引入。
+
+再来一个实用的plugin。如果打包后的文件名改变，那么打包后的dist目录重复文件会越来越多，所以就需要我们在打包前能够自动删除dist目录或是其中一些经常变化的文件。
+执行`npm install clean-webpack-plugin --save-dev`;
+在'webpack.config.js'中添加如下代码
+```javascript
+var CleanWebpackPlugin = require('clean-webpack-plugin');
+
+plugins: [
+    ...,
+    new CleanWebpackPlugin(['dist'])
+]
+```
+
+想知道都有哪些plugin，来这里看看，[传送门](https://webpack.js.org/plugins/)
 
