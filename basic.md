@@ -343,11 +343,20 @@ module.exports = webpackConfig;
 `var HtmlWebpackPlugin = require('html-webpack-plugin');`
 在**plugins**添加如下配置
 ```javascript
-new HtmlWebpackPlugin({
-    title: 'webpack demo',
-    filename: 'index.html',             // 生成的文件名
-    template: 'index.html',             // 以哪个文件为模板，可不填
-})
+output: {
+    ...,
+    publicPath: '/'              // 设置自动引入到index.html中文件的根路径
+}
+
+
+plugins: [
+    ...,
+    new HtmlWebpackPlugin({
+        title: 'webpack demo',
+        filename: 'index.html',             // 生成的文件名
+        template: 'index.html',             // 以哪个文件为模板，可不填
+    })
+]
 ```
 
 将`index.html`中引入的js文件删除，执行`npm start`页面像之前一样正常显示。打开控制台切换到`Elements`选项，js文件都在底部被正确引入。
