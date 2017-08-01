@@ -332,7 +332,7 @@ module.exports = webpackConfig;
 执行`npm run build`可以看到之前加载的字体,图片都打包到了`dist`目录下，你会发现没有样式文件。因为样式文件是通过js写入到页面的`<style>`
 标签内的。
 
-想知道都有哪些loder，来这里看看。[传送门](https://webpack.js.org/loaders/);
+想知道都有哪些loader，来这里看看。[传送门](https://webpack.js.org/loaders/);
 
 
 ## index.html自动引入打包后的文件
