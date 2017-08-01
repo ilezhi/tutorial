@@ -1,11 +1,9 @@
 # webpack进阶一
 
-上一篇文章讲了webpack的基础用法，并有一个简单的配置。然而在实际开发中还需要添加一些其它配置才能更方便地安静地敲代码。
+上一篇讲了webpack的基础用法，并有一个简单的配置。然而在实际开发中还需要添加一些其它配置才能让我们安静地敲代码。
 
-## 目录结构与配置
-根据上一篇[webpack基础](http://weels.aonebei.cn/article/597c526aee25080fd9fbef97)构建的目录结构和配置文件，再添加一些文件后如下。
-
-查看[demo](https://github.com/myTurn2015/webpack_demo);
+## 构建目录结构
+根据上一篇[webpack基础](http://weels.aonebei.cn/article/597c526aee25080fd9fbef97)构建的目录添加如下目录和文件。查看[demo](https://github.com/myTurn2015/webpack_demo);
 **目录结构**
 ```
 webpack_demo
@@ -31,7 +29,7 @@ webpack_demo
 ```
 
 ## es6,sass
-如果你想用es6和sass来编写你的js文件和css文件，同时又想兼容大多数浏览器，就需要安装相应的loader来将你写的文件降级处理。
+就想用es6和sass这种浏览器不支持的写法，babel,loader让我飞。
 
 1. 解析es6
 `npm install babel-core babel-loader babel-preset-env --save-dev`
@@ -67,8 +65,8 @@ rules: [
 ```
 
 
-## resolve & externals
-这俩个也是常用配置项，并且能减轻一些我们的编码量。
+## resolve
+多写一点配置，少写几吨代码。
 
 ### 1. 省略文件后缀名
 引入文件时，只有`.js`和`.json`类型的文件可以省略后缀。如果我们也想省略`.css`，`.scss`或其他类型文件后缀，就需要设置resolve.entension
@@ -110,7 +108,7 @@ var webpackConfig = {
 如果要引入tooltip就可以直接写成`import tooltip from 'tooltip';`。
 可以看到引入路径简化了很多。如果目录变更了，只需要修改**alias**中对应的名称就可以。
 
-### 3. 不打包引入的文件
+## externals不想打包jquery
 例如jquery是通过cdn引入，或项目已经通过`<script>`标签引入jquery，但是在项目中通过`import $ from 'jquery';`还是会打包jquery。
 此时可以设置externals指定哪些文件不打包。
 **webpack.config.js
@@ -125,11 +123,13 @@ var webpackConfig = {
 ```
 这样就可以不打包jQuery，如果不想打包其它第三方类库，只要设置引用时的名称对应暴露出的全局变量名就可以排除打包。
 
-## 按需加载require.ensure
+## require.ensure按需加载
+减小入口文件体积，除了分离出公共代码和第三方类库外，另一个更有效的发放就是按需加载了。
 
-在单页面应用中只会有一个入口文件，除了公共代码外都打包到入口文件，将会导致入口文件过大，影响首屏加载速度。而有很多功能是
-首页用不到的。我们希望只有真正用到某些代码时才会去加载它，并将这些按需加载的代码打包到独立的文件中。
-其中一个解决办法就是使用`require.ensure`来加载当真正需要用到时的代码。
+在单页面应用中只会有一个入口文件，除了公共代码外都打包到入口文件，将会导致入口文件过大，影响首屏加载速度。而有很多功能是首页用不到的。
+我们希望只有真正用到某些代码时才会去加载它，并将这些按需加载的代码打包到独立的文件中。
+其中一个解决办法就是使用`require.ensure`实现按需加载。
+
 假如页面有一个按钮，点击时会在页面加一句话。也就是当我们点击这个按钮才会用到这段代码。所以需要从入口文件中独立出来。(如果功能复杂，就会减少很多入口文件的大小)
 点击事件在**app.js**文件中定义
 ```javascript
@@ -163,7 +163,7 @@ var webpackConfig = {
 }
 ```
 
-## 公共文件hash值变化
+## 打包的公共文件hash值变化
 给文件设置hash值是为了利用浏览器缓存机制。如果修改了文件再打包，hash值就会改变(即文件名改变)，浏览器就会加载最新文件。未改变的文件名则会使用缓存的文件。
 
 首先将` new CleanWebpackPlugin(['dist'])`注释掉，执行`npm run build`，查看打包后的文件，修改其中一个入口文件，再次执行`npm run build`，dist目录下又多了一些文件。
@@ -186,7 +186,7 @@ var webpackConfig = {
 
 
 ## 分目录打包文件
-现在我们的js，css，字体文件，图片都打包进了dist目录下。而我们需要的是打包到dist下相应类型的目录内。
+现在我们的js，css，字体文件，图片都打包进了dist根目录下。而我们需要的是打包到dist下相应类型的目录内。
 
 来一个完整的配置文件
 **webpack.config.js**
@@ -281,6 +281,8 @@ var webpackConfig = {
 module.exports = webpackConfig;
 ```
 执行`npm run build`，文件都打包到对应的目录下。
+
+## 下一篇开始构建开发环境和生产环境
 
 
 
